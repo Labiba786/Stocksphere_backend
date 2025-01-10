@@ -21,7 +21,7 @@ import com.personal.stocksphere.service.StockService;
 
 @RestController
 @RequestMapping("/api/stocks")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class StockController {
   @Autowired
   private StockService stockService;
