@@ -8,7 +8,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,8 +40,6 @@ public class MySecurityConfig {
         http
             .csrf()
                 .disable()
-            .cors()
-                .disable()
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/api/user/login", "/api/user/add").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
@@ -60,7 +57,6 @@ public class MySecurityConfig {
         return http.build();
     }
     
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
