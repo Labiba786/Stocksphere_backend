@@ -9,6 +9,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.personal.stocksphere.config.JwtUtils;
 import com.personal.stocksphere.dto.JwtRequest;
-import com.personal.stocksphere.dto.JwtResponse;
 import com.personal.stocksphere.dto.UserDto;
 import com.personal.stocksphere.entity.User;
 import com.personal.stocksphere.exceptions.UserAlreadyExistException;
@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/user")
+@CrossOrigin(origins = "*")
 public class UserController {
 	
 	@Autowired
