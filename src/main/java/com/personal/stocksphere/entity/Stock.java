@@ -30,6 +30,19 @@ public class Stock {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public Stock() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public Stock(Long id, String name, String ticker, int quantity, double buyPrice, User user) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.ticker = ticker;
+		this.quantity = quantity;
+		this.buyPrice = buyPrice;
+		this.user = user;
+	}
 	public String getTicker() {
 		return ticker;
 	}
@@ -49,6 +62,12 @@ public class Stock {
 		this.buyPrice = buyPrice;
 	}
 	private int quantity;
+	public User getUser() {
+		return user;
+	}
+	public void setUser(User user) {
+		this.user = user;
+	}
 	private double buyPrice;
 	
 	@ManyToOne(fetch=FetchType.LAZY)

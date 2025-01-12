@@ -9,8 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.personal.stocksphere.dto.StockDto;
 import com.personal.stocksphere.entity.Stock;
+import com.personal.stocksphere.entity.User;
+import com.personal.stocksphere.exceptions.UserDoesNotExistsException;
 import com.personal.stocksphere.repository.StockRepository;
+import com.personal.stocksphere.repository.UserRepository;
 import com.personal.stocksphere.service.StockService;
 
 @Service
@@ -23,21 +27,49 @@ public class StockServiceImpl implements StockService{
 	@Autowired
 	private StockRepository stockRepository;
 	
+	@Autowired
+	private UserRepository userRepository;
+	
 	
 	@Override
-	public Stock addStock(Stock stock) {
+	public Stock addStock(StockDto stock, String username) throws UserDoesNotExistsException {
 		// TODO Auto-generated method stub
-		return stockRepository.save(stock);
+		User resp = this.userRepository.findByUsername(username);
+		if(resp!=null) {
+			Stock s = new Stock();
+			s.setUser(resp);
+			s.setName(stock.getName());
+			s.setQuantity(stock.getQuantity());
+			s.setTicker(stock.getTicker());
+			s.setBuyPrice(stock.getBuyPrice());
+			
+			s = this.stockRepository.save(s);
+			
+			
+			resp.getStocks().add(s);
+			this.userRepository.save(resp);
+			
+			return s;
+		}
+		else {
+			throw new UserDoesNotExistsException("No user with this credentials!!");
+		}
 	}
 
 	@Override
-	public List<Stock> getAllStocks() {
+	public List<Stock> getAllStocks(String username) throws UserDoesNotExistsException {
 		// TODO Auto-generated method stub
-		return stockRepository.findAll();
+		User resp = this.userRepository.findByUsername(username);
+		if(resp!=null) {
+			return resp.getStocks();
+		}
+		else {
+			throw new UserDoesNotExistsException("No user with this credentials!!");
+		}
 	}
 
 	@Override
-	public Stock updateStock(Long id, Stock updatedStock) {
+	public Stock updateStock(Long id, StockDto updatedStock, String username) {
 		// TODO Auto-generated method stub
 		Stock stock = stockRepository.findById(id).orElseThrow(() -> new RuntimeException("Stock not found")); 
 		stock.setName(updatedStock.getName()); 
@@ -48,15 +80,21 @@ public class StockServiceImpl implements StockService{
 	}
 
 	@Override
-	public void deleteStock(Long id) {
+	public void deleteStock(Long id, String username) {
 		// TODO Auto-generated method stub
 		stockRepository.deleteById(id);
 	}
 
 	@Override
-	public Map<String, Object> getPortfolioMetrics() {
+	public Map<String, Object> getPortfolioMetrics(String username) throws UserDoesNotExistsException {
 		// TODO Auto-generated method stub
-		List<Stock> stocks = getAllStocks(); 
+		List<Stock> stocks;
+		try {
+			stocks = getAllStocks(username);
+		} catch (UserDoesNotExistsException e) {
+			// TODO Auto-generated catch block
+			throw new UserDoesNotExistsException("No user with this credentials!!");
+		} 
 		double totalValue = 0; 
 		String topStock = null; 
 		double topStockValue = 0; 

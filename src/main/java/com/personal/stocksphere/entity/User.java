@@ -21,6 +21,12 @@ import jakarta.persistence.Table;
 @Table(name="Users")
 public class User implements UserDetails{
 	
+	@Override
+	public String toString() {
+		return "User [userId=" + userId + ", fullName=" + fullName + ", email=" + email + ", username=" + username
+				+ ", password=" + password + ", confirmPassword=" + confirmPassword + ", stocks=" + stocks + "]";
+	}
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int userId;
@@ -34,11 +40,14 @@ public class User implements UserDetails{
 	public void setUsername(String username) {
 		this.username = username;
 	}
-
+	
+	@JsonIgnore
 	private String password;
+	@JsonIgnore
 	private String confirmPassword;
 	
 	@OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+	@JsonIgnore
 	List<Stock> stocks = new ArrayList<>();
 
 	public User() {

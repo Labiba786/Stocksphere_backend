@@ -17,14 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.personal.stocksphere.config.JwtUtils;
 import com.personal.stocksphere.dto.JwtRequest;
+import com.personal.stocksphere.dto.JwtResponse;
 import com.personal.stocksphere.dto.UserDto;
 import com.personal.stocksphere.entity.User;
 import com.personal.stocksphere.exceptions.UserAlreadyExistException;
 import com.personal.stocksphere.service.UserService;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/user")
@@ -46,31 +44,33 @@ public class UserController {
 	
 	
 	@PostMapping("/login")
-	public ResponseEntity<?> generateToken(@RequestBody JwtRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
+	public ResponseEntity<?> generateToken(@RequestBody JwtRequest request) {
 	
 	    try {
 	        this.authenticate(request.getUsername(), request.getPassword());
 	        UserDetails user = this.userDetailsService.loadUserByUsername(request.getUsername());
 	        String token = this.jwtUtils.generateToken(user);
 	
-	        // Determine if the request is secure (HTTPS)
-	        boolean isSecure = httpRequest.isSecure();
+//	        // Determine if the request is secure (HTTPS)
+//	        boolean isSecure = httpRequest.isSecure();
+//	
+//	        // Create a cookie for the token
+//	        Cookie cookie = new Cookie("token", token);
+//	        cookie.setHttpOnly(true);
+//	        cookie.setSecure(isSecure);
+//	        cookie.setPath("/");
+//	
+//	        // Add the SameSite attribute
+//	        String sameSiteAttribute = "SameSite=Lax";
+//	        if (isSecure) {
+//	            response.addHeader("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; " + sameSiteAttribute + "; Secure; HttpOnly; Path=" + cookie.getPath());
+//	        } else {
+//	            response.addHeader("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; " + sameSiteAttribute + "; HttpOnly; Path=" + cookie.getPath());
+//	        }
+	        
+	        JwtResponse jwtResponse = new JwtResponse(user, token);
 	
-	        // Create a cookie for the token
-	        Cookie cookie = new Cookie("token", token);
-	        cookie.setHttpOnly(true);
-	        cookie.setSecure(isSecure);
-	        cookie.setPath("/");
-	
-	        // Add the SameSite attribute
-	        String sameSiteAttribute = "SameSite=Lax";
-	        if (isSecure) {
-	            response.addHeader("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; " + sameSiteAttribute + "; Secure; HttpOnly; Path=" + cookie.getPath());
-	        } else {
-	            response.addHeader("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; " + sameSiteAttribute + "; HttpOnly; Path=" + cookie.getPath());
-	        }
-	
-	        return new ResponseEntity<>(user, HttpStatus.OK);
+	        return new ResponseEntity<JwtResponse>(jwtResponse, HttpStatus.OK);
 	    } catch (Exception e) {
 	        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
 	    }
