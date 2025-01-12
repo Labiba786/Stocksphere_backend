@@ -46,30 +46,36 @@ public class UserController {
 	
 	
 	@PostMapping("/login")
-	private ResponseEntity<?> generateToken(@RequestBody JwtRequest request, HttpServletRequest httpRequest, HttpServletResponse response){
-		
-		try { 
-			this.authenticate(request.getUsername(), request.getPassword()); 
-			UserDetails user = this.userDetailsService.loadUserByUsername(request.getUsername()); 
-			String token = this.jwtUtils.generateToken(user); 
-			
-			// Determine if the request is secure (HTTPS) 
-			boolean isSecure = httpRequest.isSecure(); 
-			
-			// Create a cookie for the token 
-			Cookie cookie = new Cookie("token", token); 
-			cookie.setHttpOnly(true); 
-			cookie.setSecure(isSecure); 
-			
-			// Set to true if the request is secure (HTTPS) 
-			cookie.setPath("/"); 
-			response.addCookie(cookie); 
-			return new ResponseEntity<>(user, HttpStatus.OK); 
-			} catch (Exception e) { 
-				return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT); 
-			}
-		
+	public ResponseEntity<?> generateToken(@RequestBody JwtRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
+	
+	    try {
+	        this.authenticate(request.getUsername(), request.getPassword());
+	        UserDetails user = this.userDetailsService.loadUserByUsername(request.getUsername());
+	        String token = this.jwtUtils.generateToken(user);
+	
+	        // Determine if the request is secure (HTTPS)
+	        boolean isSecure = httpRequest.isSecure();
+	
+	        // Create a cookie for the token
+	        Cookie cookie = new Cookie("token", token);
+	        cookie.setHttpOnly(true);
+	        cookie.setSecure(isSecure);
+	        cookie.setPath("/");
+	
+	        // Add the SameSite attribute
+	        String sameSiteAttribute = "SameSite=None";
+	        if (isSecure) {
+	            response.addHeader("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; " + sameSiteAttribute + "; Secure; HttpOnly; Path=" + cookie.getPath());
+	        } else {
+	            response.addHeader("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; " + sameSiteAttribute + "; HttpOnly; Path=" + cookie.getPath());
+	        }
+	
+	        return new ResponseEntity<>(user, HttpStatus.OK);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+	    }
 	}
+
 	
 	
 	private void authenticate(String username, String password) throws Exception {
