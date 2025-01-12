@@ -63,7 +63,7 @@ public class UserController {
 	        cookie.setPath("/");
 	
 	        // Add the SameSite attribute
-	        String sameSiteAttribute = "SameSite=None";
+	        String sameSiteAttribute = "SameSite=Lax";
 	        if (isSecure) {
 	            response.addHeader("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; " + sameSiteAttribute + "; Secure; HttpOnly; Path=" + cookie.getPath());
 	        } else {
